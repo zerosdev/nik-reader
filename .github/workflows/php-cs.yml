@@ -1,0 +1,36 @@
+on:
+    push:
+        paths:
+            - '**.php'
+    pull_request:
+        paths:
+            - '**.php'
+
+name: phpcs
+
+jobs:
+    phpcs:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+              with:
+                ref: ${{ github.head_ref }}
+
+            - name: check php version
+              run: php -v
+
+            - name: download phpcs
+              run: wget -O phpcs.phar https://cs.symfony.com/download/php-cs-fixer-v3.phar
+
+            - name: make phpcs executable
+              run: chmod +x phpcs.phar
+
+            - name: apply coding style
+              run: php phpcs.phar fix
+
+            - name: remove phpcs
+              run: rm -f phpcs.phar
+
+            - uses: stefanzweifel/git-auto-commit-action@v4
+              with:
+                  commit_message: 'phpcs: apply coding style'

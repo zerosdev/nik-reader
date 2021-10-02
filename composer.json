@@ -1,0 +1,41 @@
+{
+  "name": "zerosdev/nik-reader",
+  "description": "Identity data reader based on NIK (Nomor Induk Kependudukan)",
+  "type": "library",
+  "require": {
+    "php": ">=5.6.0",
+    "ext-json": "*"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/ZerosDev/nik-reader",
+  "support": {
+    "issues": "https://github.com/ZerosDev/nik-reader/issues",
+    "source": "https://github.com/ZerosDev/nik-reader"
+  },
+  "authors": [
+    {
+      "name": "Suyadi",
+      "email": "suyadi.1992@gmail.com"
+    },
+    {
+      "name": "ZerosDev",
+      "email": "admin@zeros.co.id"
+    }
+  ],
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-4": {
+        "ZerosDev\\NikReader\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "ZerosDev\\NikReader\\Laravel\\ServiceProvider"
+      ],
+      "aliases": {
+        "NikReader": "ZerosDev\\NikReader\\Laravel\\Facade"
+      }
+    }
+  }
+}
