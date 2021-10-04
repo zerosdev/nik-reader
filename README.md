@@ -1,5 +1,5 @@
 <h1 align="center">NIK Reader</h1>
-<h5 align="center">Identity data reader based on NIK (Nomor Induk Kependudukan)</h5>
+<h6 align="center">Identity data reader based on NIK (Nomor Induk Kependudukan)</h6>
 
 <p align="center">
   <img src="https://github.com/ZerosDev/nik-reader/workflows/build/badge.svg" alt="build"/>
