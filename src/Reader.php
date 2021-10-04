@@ -3,10 +3,12 @@
 namespace ZerosDev\NikReader;
 
 use DateTime;
+use Exception;
 
 class Reader
 {
     private $nik;
+    private $fetchNew = false;
 
     private static $database;
     private static $filemtime;
@@ -34,7 +36,7 @@ class Reader
             $this->setNik($nik);
         }
 
-        $database = $database ?? dirname(__DIR__) . '/database/database.json';
+        $database = ! is_null($database) ? $database : dirname(__DIR__) . '/database/database.json';
 
         $this->setDatabase($database);
     }
@@ -65,6 +67,28 @@ class Reader
                 strlen($nik)
             ));
         }
+
+        return $this;
+    }
+
+    /**
+     * Read data
+     */
+    public function read(string $nik = null)
+    {
+        if (! is_null($nik)) {
+            $this->setNik($nik);
+        }
+
+        $this->fetchNew = true;
+
+        $this->getProvince();
+        $this->getCity();
+        $this->getSubdistrict();
+        $this->getPostalCode();
+        $this->getBirthday();
+        $this->getGender();
+        $this->getUniqueId();
 
         return $this;
     }
@@ -108,9 +132,17 @@ class Reader
      */
     public function getProvince()
     {
+        if ($this->province && ! $this->fetchNew) {
+            return $this->province;
+        }
+
         $this->province_id = substr($this->nik, 0, 2);
 
-        return $this->province = (static::$database->provinsi->{$this->province_id} ?? null);
+        return $this->province = (
+            isset(static::$database->provinsi->{$this->province_id})
+                ? static::$database->provinsi->{$this->province_id}
+                : null
+        );
     }
 
     /**
@@ -120,9 +152,17 @@ class Reader
      */
     public function getCity()
     {
+        if ($this->city && ! $this->fetchNew) {
+            return $this->city;
+        }
+
         $this->city_id = substr($this->nik, 0, 4);
 
-        return $this->city = (static::$database->kabkot->{$this->city_id} ?? null);
+        return $this->city = (
+            isset(static::$database->kabkot->{$this->city_id})
+                ? static::$database->kabkot->{$this->city_id}
+                : null
+        );
     }
 
     /**
@@ -132,9 +172,17 @@ class Reader
      */
     public function getSubdistrict()
     {
+        if ($this->subdistrict && ! $this->fetchNew) {
+            return $this->subdistrict;
+        }
+
         $this->subdistrict_id = substr($this->nik, 0, 6);
 
-        $this->subdistrict = (static::$database->kecamatan->{$this->subdistrict_id} ?? null);
+        $this->subdistrict = (
+            isset(static::$database->kecamatan->{$this->subdistrict_id})
+                ? static::$database->kecamatan->{$this->subdistrict_id}
+                : null
+        );
 
         if (! is_null($this->subdistrict)) {
             $this->subdistrict = explode(' -- ', $this->subdistrict);
@@ -151,9 +199,17 @@ class Reader
      */
     public function getPostalCode()
     {
+        if ($this->postal_code && ! $this->fetchNew) {
+            return $this->postal_code;
+        }
+
         $code = substr($this->nik, 0, 6);
 
-        $subdistrict = (static::$database->kecamatan->{$code} ?? null);
+        $subdistrict = (
+            isset(static::$database->kecamatan->{$code})
+                ? static::$database->kecamatan->{$code}
+                : null
+        );
 
         if (! is_null($subdistrict)) {
             $subdistrict = explode(' -- ', $subdistrict);
@@ -170,10 +226,14 @@ class Reader
      */
     public function getBirthday()
     {
+        if ($this->birthday && ! $this->fetchNew) {
+            return $this->birthday;
+        }
+
         $code = substr($this->nik, 6, 6);
         list($day, $month, $year) = str_split($code, 2);
 
-        $day = ((int) $day > 40) ? ($day - 40) : $day;
+        $day = (intval($day) > 40) ? (intval($day) - 40) : $day;
 
         $max = date('Y') - 17;
         $min = 1945;
@@ -185,7 +245,11 @@ class Reader
         $year = ($temp > $min) ? (($high > $max) ? $low : $high) : $low;
 
         if ($year < $min) {
-            throw new Exceptions\InvalidDateOfBirthException('Error! year: ' . $year);
+            throw new Exceptions\InvalidDateOfBirthException(sprintf(
+                'Unable to parse date of birth (%s) from an invalid NIK number (%s)',
+                $code,
+                $this->nik
+            ));
         }
 
         try {
@@ -194,15 +258,11 @@ class Reader
                 sprintf('%s-%s-%d', $day, $month, $year)
             );
             if ($parse !== false) {
-                return $parse->format('d-m-Y');
+                return $this->birthday = $parse->format('d-m-Y');
             } else {
-                throw new Exceptions\InvalidDateOfBirthException(sprintf(
-                    'Unable to parse date of birth (%s) from an invalid NIK number (%s)',
-                    $code,
-                    $this->nik
-                ));
+                throw new Exception();
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new Exceptions\InvalidDateOfBirthException(sprintf(
                 'Unable to parse date of birth (%s) from an invalid NIK number (%s)',
                 $code,
@@ -218,6 +278,10 @@ class Reader
      */
     public function getGender()
     {
+        if ($this->gender && ! $this->fetchNew) {
+            return $this->gender;
+        }
+
         $day = substr($this->nik, 6, 2);
 
         if ($day > 40) {
@@ -236,6 +300,10 @@ class Reader
      */
     public function getUniqueId()
     {
+        if ($this->unique_id && ! $this->fetchNew) {
+            return $this->unique_id;
+        }
+
         $code = substr($this->nik, 12, 4);
 
         return $this->unique_id = (strlen($code) === 4 ? $code : null);
@@ -248,25 +316,17 @@ class Reader
      */
     public function toArray()
     {
-        $province = $this->getProvince();
-        $city = $this->getCity();
-        $subdistrict = $this->getSubdistrict();
-        $postal_code = $this->getPostalCode();
-        $birthday = $this->getBirthday();
-        $gender = $this->getGender();
-        $unique_id = $this->getUniqueId();
-
         return [
             'province_id' => $this->province_id,
-            'province' => $province,
+            'province' => $this->province,
             'city_id' => $this->city_id,
-            'city' => $city,
+            'city' => $this->city,
             'subdistrict_id' => $this->subdistrict_id,
-            'subdistrict' => $subdistrict,
-            'postal_code' => $postal_code,
-            'birthday' => $birthday,
-            'gender' => $gender,
-            'unique_id' => $unique_id
+            'subdistrict' => $this->subdistrict,
+            'postal_code' => $this->postal_code,
+            'birthday' => $this->birthday,
+            'gender' => $this->gender,
+            'unique_id' => $this->unique_id
         ];
     }
 

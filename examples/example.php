@@ -4,8 +4,10 @@ require dirname(__DIR__).'/vendor/autoload.php';
 
 use ZerosDev\NikReader\Reader;
 
-$nik = '3502200101910001';
+$nik = '3502200101200001';
 
-$reader = new Reader($nik);
+$reader = new Reader();
 
-print_r($reader->isValid());
+$result = $reader->read($nik)->toArray();
+
+print_r($result);
