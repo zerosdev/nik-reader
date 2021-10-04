@@ -2,7 +2,7 @@
 
 namespace ZerosDev\NikReader;
 
-class Parser
+class Reader
 {
     private $nik;
 
@@ -51,7 +51,17 @@ class Parser
         }
 
         if (static::$filemtime <= filemtime($file)) {
-            static::$database = file_get_contents($file);
+            $database = file_get_contents($file);
+            $database = json_decode($database);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new Exceptions\InvalidDatabaseWilayahException(sprintf(
+                    'Unable to decode database contents: %s',
+                    $file
+                ));
+            }
+
+            static::$database = $database;
             static::$filemtime = filemtime($file);
         }
 
@@ -96,8 +106,7 @@ class Parser
         } catch (\Exception $e) {
             throw new Exceptions\InvalidDateOfBirthException(sprintf(
                 'Unable to parse date of birth (%s) from an invalid NIK number (%s)',
-                $code,
-                $this->nik
+                $code, $this->nik
             ));
         }
     }
