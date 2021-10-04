@@ -22,7 +22,7 @@ class Reader
     {
         $this->setNik($nik);
 
-        $database = $database ?? dirname(__DIR__) . '/database/wilayah.json';
+        $database = $database ?? dirname(__DIR__) . '/database/database.json';
 
         $this->setDatabase($database);
     }
