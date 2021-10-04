@@ -22,7 +22,7 @@ class Reader
     {
         $this->setNik($nik);
 
-        $database = $database ?? dirname(__DIR__) . '/database/wilayah.json';
+        $database = $database ?? dirname(__DIR__) . '/database/database.json';
 
         $this->setDatabase($database);
     }
@@ -30,11 +30,13 @@ class Reader
     /**
      * Cek validitas nomor NIK.
      *
+     * @param string $nik
+     *
      * @return bool
      */
-    public function isValid()
+    public function isValid(string $nik)
     {
-        return is_string($this->nik) && strlen($this->nik) === 16;
+        return is_numeric($nik) && strlen($nik) === 16;
     }
 
     /**
@@ -46,7 +48,7 @@ class Reader
     {
         $this->nik = $nik;
 
-        if (! $this->isValid()) {
+        if (! $this->isValid($nik)) {
             throw new Exceptions\InvalidNikNumberException(sprintf(
                 'NIK number should be a 16-digit numeric string. Got: %s',
                 gettype($nik)
