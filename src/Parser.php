@@ -96,7 +96,8 @@ class Parser
         } catch (\Exception $e) {
             throw new Exceptions\InvalidDateOfBirthException(sprintf(
                 'Unable to parse date of birth (%s) from an invalid NIK number (%s)',
-                $code, $this->nik
+                $code,
+                $this->nik
             ));
         }
     }
