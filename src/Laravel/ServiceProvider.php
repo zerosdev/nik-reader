@@ -16,7 +16,7 @@ class ServiceProvider extends LaravelServiceProvider implements DeferrableProvid
     public function register()
     {
         $this->app->singleton(Reader::class, function ($app) {
-            return (new Reader(config('nik_reader')));
+            return new Reader();
         });
     }
 

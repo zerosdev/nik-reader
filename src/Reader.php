@@ -101,7 +101,7 @@ class Reader
     public function setDatabase(string $file)
     {
         if (! is_file($file) || ! is_readable($file)) {
-            throw new Exceptions\InvalidDatabaseWilayahException(sprintf(
+            throw new Exceptions\InvalidDatabaseException(sprintf(
                 'The database file cannot be found or not readable: %s',
                 $file
             ));
@@ -112,7 +112,7 @@ class Reader
             $database = json_decode($database);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new Exceptions\InvalidDatabaseWilayahException(sprintf(
+                throw new Exceptions\InvalidDatabaseException(sprintf(
                     'Unable to decode database contents: %s',
                     $file
                 ));
