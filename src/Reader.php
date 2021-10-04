@@ -48,7 +48,7 @@ class Reader
     {
         $this->nik = $nik;
 
-        if (! $this->isValid()) {
+        if (! $this->isValid($nik)) {
             throw new Exceptions\InvalidNikNumberException(sprintf(
                 'NIK number should be a 16-digit numeric string. Got: %s',
                 gettype($nik)
