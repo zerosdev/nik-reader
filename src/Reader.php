@@ -133,8 +133,22 @@ class Reader
      */
     public function getTanggalLahir()
     {
-        $code = substr($this->nik, 6, 12);
+        $code = substr($this->nik, 6, 6);
         list($day, $month, $year) = str_split($code, 2);
+
+        $day = (((int) $day - 40) > 0) ? ($day - 40) : $day;
+
+        $max = date('Y') - 17;
+        $min = 1945;
+        $temp = '20' . $year;
+        $low = '19' . $year;
+        $high = '20' . $year;
+
+        $year = ($temp > $min) ? (($high > $max) ? $low : $high) : $low;
+
+        if ($year < $min) {
+            throw new Exceptions\InvalidDateOfBirthException('Error! year: ' . $year);
+        }
 
         try {
             return DateTime::createFromFormat(
