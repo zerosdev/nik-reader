@@ -30,11 +30,13 @@ class Reader
     /**
      * Cek validitas nomor NIK.
      *
+     * @param string $nik
+     *
      * @return bool
      */
-    public function isValid()
+    public function isValid(string $nik)
     {
-        return is_string($this->nik) && strlen($this->nik) === 16;
+        return is_numeric($nik) && strlen($nik) === 16;
     }
 
     /**
