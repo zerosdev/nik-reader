@@ -9,7 +9,12 @@ class Reader
     private static $database;
     private static $filemtime;
 
-
+    /**
+     * Constructor.
+     *
+     * @param string      $nik
+     * @param string|null $database
+     */
     public function __construct(string $nik, string $database = null)
     {
         $this->setNik($nik);
@@ -19,13 +24,21 @@ class Reader
         $this->setDatabase($database);
     }
 
-
+    /**
+     * Cek validitas nomor NIK.
+     *
+     * @return bool
+     */
     public function isValid()
     {
         return is_string($this->nik) && strlen($this->nik) === 16;
     }
 
-
+    /**
+     * Set nomor NIK.
+     *
+     * @param string $nik
+     */
     public function setNik(string $nik)
     {
         if (! $this->isValid($nik)) {
@@ -40,8 +53,12 @@ class Reader
         return $this;
     }
 
-
-    public function setDatabase($file)
+    /**
+     * Set database dan baca isinya.
+     *
+     * @param string $file
+     */
+    public function setDatabase(string $file)
     {
         if (! is_file($file) || ! is_readable($file)) {
             throw new Exceptions\InvalidDatabaseWilayahException(sprintf(
@@ -68,7 +85,11 @@ class Reader
         return $this;
     }
 
-
+    /**
+     * Get data provinsi dari NIK.
+     *
+     * @return string|null
+     */
     public function getProvinsi()
     {
         $code = substr($this->nik, 0, 2);
@@ -76,7 +97,11 @@ class Reader
         return static::$database->provinsi->{$code} ?? null;
     }
 
-
+    /**
+     * Get data kabupaten/kota dari NIK.
+     *
+     * @return string|null
+     */
     public function getKabupatenKota()
     {
         $code = substr($this->nik, 0, 4);
@@ -84,7 +109,11 @@ class Reader
         return static::$database->kabkot->{$code} ?? null;
     }
 
-
+    /**
+     * Get data kecamatan dari NIK.
+     *
+     * @return string|null
+     */
     public function getKecamatan()
     {
         $code = substr($this->nik, 0, 6);
@@ -92,7 +121,11 @@ class Reader
         return static::$database->kecamatan->{$code} ?? null;
     }
 
-
+    /**
+     * Get data tanggal lahir dari NIK.
+     *
+     * @return string|null
+     */
     public function getTanggalLahir()
     {
         $code = substr($this->nik, 6, 12);
