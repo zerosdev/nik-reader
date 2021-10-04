@@ -2,6 +2,9 @@
 
 namespace ZerosDev\NikReader;
 
+use DateTime;
+use Exception;
+
 class Reader
 {
     private $nik;
@@ -136,7 +139,7 @@ class Reader
                 'd-m-Y',
                 sprintf('%s-%s-%s', $day, $month, $year)
             )->format('d-m-Y');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new Exceptions\InvalidDateOfBirthException(sprintf(
                 'Unable to parse date of birth (%s) from an invalid NIK number (%s)',
                 $code, $this->nik
