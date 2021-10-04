@@ -2,7 +2,7 @@
 
 namespace ZerosDev\NikReader\Exceptions;
 
-class NikParserException extends \Exception
+class NikReaderException extends \Exception
 {
     // ..
 }
