@@ -2,7 +2,7 @@
 
 namespace ZerosDev\NikReader\Exceptions;
 
-class InvalidDatabaseWilayahException extends NikReaderException
+class InvalidNikNumberException extends NikReaderException
 {
     // ..
 }

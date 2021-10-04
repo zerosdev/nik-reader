@@ -41,14 +41,14 @@ class Reader
      */
     public function setNik(string $nik)
     {
-        if (! $this->isValid($nik)) {
+        $this->nik = $nik;
+
+        if (! $this->isValid()) {
             throw new Exceptions\InvalidNikNumberException(sprintf(
                 'NIK number should be a 16-digit numeric string. Got: %s',
                 gettype($nik)
             ));
         }
-
-        $this->nik = $nik;
 
         return $this;
     }
