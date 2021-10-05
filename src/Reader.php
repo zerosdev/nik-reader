@@ -8,8 +8,9 @@ use Exception;
 class Reader
 {
     private $fetchNew = false;
-    private $database;
-    private $filemtime;
+
+    private static $database;
+    private static $filemtime;
 
     public $valid = false;
     public $nik;
@@ -55,20 +56,6 @@ class Reader
     public function setNik(string $nik)
     {
         $this->nik = $nik;
-
-        if (
-            ! is_string($this->nik)
-            || ! preg_match("/^[0-9]+$/is", $this->nik)
-            || ! strlen($this->nik) === 16
-        ) {
-            // throw new Exceptions\InvalidNikNumberException(sprintf(
-            //     'NIK number should be a 16-digit numeric string. Got: %s (%d)',
-            //     gettype($nik),
-            //     strlen($nik)
-            // ));
-
-            $this->valid = false;
-        }
 
         return $this;
     }
@@ -130,7 +117,7 @@ class Reader
             ));
         }
 
-        if ($this->filemtime <= filemtime($file)) {
+        if (static::$filemtime <= filemtime($file)) {
             $database = file_get_contents($file);
             $database = json_decode($database);
 
@@ -142,8 +129,8 @@ class Reader
                 ));
             }
 
-            $this->database = $database;
-            $this->filemtime = filemtime($file);
+            static::$database = $database;
+            static::$filemtime = filemtime($file);
         }
 
         return $this;
@@ -163,8 +150,8 @@ class Reader
         $this->province_id = substr($this->nik, 0, 2);
 
         return $this->province = (
-            isset($this->database->provinces->{$this->province_id})
-                ? $this->database->provinces->{$this->province_id}
+            isset(static::$database->provinces->{$this->province_id})
+                ? static::$database->provinces->{$this->province_id}
                 : null
         );
     }
@@ -183,8 +170,8 @@ class Reader
         $this->city_id = substr($this->nik, 0, 4);
 
         return $this->city = (
-            isset($this->database->cities->{$this->city_id})
-                ? $this->database->cities->{$this->city_id}
+            isset(static::$database->cities->{$this->city_id})
+                ? static::$database->cities->{$this->city_id}
                 : null
         );
     }
@@ -203,8 +190,8 @@ class Reader
         $this->subdistrict_id = substr($this->nik, 0, 6);
 
         $this->subdistrict = (
-            isset($this->database->subdistricts->{$this->subdistrict_id})
-                ? $this->database->subdistricts->{$this->subdistrict_id}
+            isset(static::$database->subdistricts->{$this->subdistrict_id})
+                ? static::$database->subdistricts->{$this->subdistrict_id}
                 : null
         );
 
@@ -230,8 +217,8 @@ class Reader
         $code = substr($this->nik, 0, 6);
 
         $subdistrict = (
-            isset($this->database->subdistricts->{$code})
-                ? $this->database->subdistricts->{$code}
+            isset(static::$database->subdistricts->{$code})
+                ? static::$database->subdistricts->{$code}
                 : null
         );
 
@@ -339,7 +326,7 @@ class Reader
             $day = $day - 40;
         }
 
-        foreach ($this->database->zodiacs as $data) {
+        foreach (static::$database->zodiacs as $data) {
             $range = explode('-', $data[0]);
             $rangeStart = explode('/', $range[0]);
             $rangeEnd = explode('/', $range[1]);
