@@ -4,16 +4,13 @@ require dirname(__DIR__).'/vendor/autoload.php';
 
 use ZerosDev\NikReader\Reader;
 
-$nik = '3502200101910001';
+$nik = '3502204101910001';
 
-$reader = new Reader();
+try {
+    $reader = new Reader();
+    $json = $reader->read($nik)->toJSON(JSON_PRETTY_PRINT);
 
-$result = $reader->read($nik);
-$province = $result->getProvince();
-$city = $result->getCity();
-$subdistrict = $result->getSubdistrict();
-// ..........
-
-$json = $reader->toJSON();
-
-print_r($json);
+    print_r($json);
+} catch (\Exception $e) {
+    print_r(get_class($e) . " => " .$e->getMessage());
+}
