@@ -21,6 +21,7 @@ class Reader
     public $subdistrict;
     public $postal_code;
     public $birthday;
+    public $zodiac;
     public $gender;
     public $unique_id;
 
@@ -87,6 +88,7 @@ class Reader
         $this->getSubdistrict();
         $this->getPostalCode();
         $this->getBirthday();
+        $this->getZodiac();
         $this->getGender();
         $this->getUniqueId();
 
@@ -113,8 +115,9 @@ class Reader
 
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new Exceptions\InvalidDatabaseException(sprintf(
-                    'Unable to decode database contents: %s',
-                    $file
+                    'Unable to decode database contents: %s (%d)',
+                    $file,
+                    json_last_error()
                 ));
             }
 
@@ -139,8 +142,8 @@ class Reader
         $this->province_id = substr($this->nik, 0, 2);
 
         return $this->province = (
-            isset(static::$database->provinsi->{$this->province_id})
-                ? static::$database->provinsi->{$this->province_id}
+            isset(static::$database->provinces->{$this->province_id})
+                ? static::$database->provinces->{$this->province_id}
                 : null
         );
     }
@@ -159,8 +162,8 @@ class Reader
         $this->city_id = substr($this->nik, 0, 4);
 
         return $this->city = (
-            isset(static::$database->kabkot->{$this->city_id})
-                ? static::$database->kabkot->{$this->city_id}
+            isset(static::$database->cities->{$this->city_id})
+                ? static::$database->cities->{$this->city_id}
                 : null
         );
     }
@@ -179,8 +182,8 @@ class Reader
         $this->subdistrict_id = substr($this->nik, 0, 6);
 
         $this->subdistrict = (
-            isset(static::$database->kecamatan->{$this->subdistrict_id})
-                ? static::$database->kecamatan->{$this->subdistrict_id}
+            isset(static::$database->subdistricts->{$this->subdistrict_id})
+                ? static::$database->subdistricts->{$this->subdistrict_id}
                 : null
         );
 
@@ -206,8 +209,8 @@ class Reader
         $code = substr($this->nik, 0, 6);
 
         $subdistrict = (
-            isset(static::$database->kecamatan->{$code})
-                ? static::$database->kecamatan->{$code}
+            isset(static::$database->subdistricts->{$code})
+                ? static::$database->subdistricts->{$code}
                 : null
         );
 
@@ -272,6 +275,44 @@ class Reader
     }
 
     /**
+     * Get zodiac
+     *
+     * @return string|null
+     */
+    public function getZodiac()
+    {
+        if ($this->zodiac && ! $this->fetchNew) {
+            return $this->zodiac;
+        }
+
+        list($day, $month) = str_split(substr($this->nik, 6, 4), 2);
+
+        $day = intval($day);
+        $month = intval($month);
+
+        if ($day > 40) {
+            $day = $day - 40;
+        }
+
+        foreach (static::$database->zodiacs as $data) {
+            $range = explode('-', $data[0]);
+            $rangeStart = explode('/', $range[0]);
+            $rangeEnd = explode('/', $range[1]);
+
+            if (($month <> intval($rangeStart[1])) && ($month <> intval($rangeEnd[1]))) {
+                continue;
+            }
+
+            if ($day >= intval($rangeStart[0]) || $day <= intval($rangeEnd[0])) {
+                $this->zodiac = $data[1];
+                break;
+            }
+        }
+
+        return $this->zodiac;
+    }
+
+    /**
      * Get gender type.
      *
      * @return string|null
@@ -325,6 +366,7 @@ class Reader
             'subdistrict' => $this->subdistrict,
             'postal_code' => $this->postal_code,
             'birthday' => $this->birthday,
+            'zodiac' => $this->zodiac,
             'gender' => $this->gender,
             'unique_id' => $this->unique_id
         ];
