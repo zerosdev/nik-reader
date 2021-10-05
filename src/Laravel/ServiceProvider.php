@@ -27,9 +27,7 @@ class ServiceProvider extends LaravelServiceProvider implements DeferrableProvid
      */
     public function boot()
     {
-        $this->publishes([
-            __DIR__.'/../../laravel-config.php' => config_path('nik_reader.php'),
-        ]);
+
     }
 
     /**
