@@ -46,7 +46,7 @@
             {
                 "NikReader": "ZerosDev\\NikReader\\Laravel\\Facade"
             }
-        },
+        }
     },
     "require-dev":
     {
