@@ -24,7 +24,8 @@
     "require":
     {
         "php": ">=5.6",
-        "ext-json": "*"
+        "ext-json": "*",
+        "cweagans/composer-patches": "dev-master"
     },
     "autoload":
     {
@@ -44,6 +45,19 @@
             "aliases":
             {
                 "NikReader": "ZerosDev\\NikReader\\Laravel\\Facade"
+            }
+        },
+        "composer-exit-on-patch-failure": true,
+        "patches":
+        {
+            "phpunit/phpunit-mock-objects":
+            {
+                "Fix PHP 7 and 8 compatibility": "https://cdn.jsdelivr.net/gh/esyede/phpunit-patches/phpunit_mock_objects.patch"
+            },
+            "phpunit/phpunit":
+            {
+                "Fix PHP 7 compatibility": "https://cdn.jsdelivr.net/gh/esyede/phpunit-patches/phpunit_php7.patch",
+                "Fix PHP 8 compatibility": "https://cdn.jsdelivr.net/gh/esyede/phpunit-patches/phpunit_php8.patch"
             }
         }
     },
