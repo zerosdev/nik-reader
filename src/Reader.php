@@ -417,7 +417,7 @@ class Reader
      *
      * @return string
      */
-    public function toJSON($flags = 0)
+    public function toJSON(int $flags = 0)
     {
         return json_encode($this->toArray(), $flags);
     }
