@@ -4,7 +4,7 @@ require dirname(__DIR__).'/vendor/autoload.php';
 
 use ZerosDev\NikReader\Reader;
 
-$nik = '3502204101910001';
+$nik = '3502204101910002';
 
 try {
     $reader = new Reader();
