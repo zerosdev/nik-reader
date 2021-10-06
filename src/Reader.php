@@ -7,6 +7,7 @@ use Exception;
 
 class Reader
 {
+    private $instanceUsed = false;
     private $fetchNew = false;
 
     private static $database;
@@ -53,7 +54,7 @@ class Reader
      *
      * @param string $nik
      */
-    public function setNik(string $nik)
+    private function setNik(string $nik)
     {
         $this->nik = $nik;
 
@@ -83,24 +84,28 @@ class Reader
      */
     public function read(string $nik = null)
     {
+        $instance = $this->instanceUsed ? new Self() : $this;
+
         if (! is_null($nik)) {
-            $this->setNik($nik);
+            $instance->setNik($nik);
         }
 
-        $this->fetchNew = true;
+        $instance->fetchNew = true;
 
-        $this->getProvince();
-        $this->getCity();
-        $this->getSubdistrict();
-        $this->getPostalCode();
-        $this->getBirthday();
-        $this->getAge();
-        $this->getZodiac();
-        $this->getGender();
-        $this->getUniqueCode();
-        $this->valid();
+        $instance->getProvince();
+        $instance->getCity();
+        $instance->getSubdistrict();
+        $instance->getPostalCode();
+        $instance->getBirthday();
+        $instance->getAge();
+        $instance->getZodiac();
+        $instance->getGender();
+        $instance->getUniqueCode();
+        $instance->valid();
 
-        return $this;
+        $instance->instanceUsed = true;
+
+        return $instance;
     }
 
     /**
