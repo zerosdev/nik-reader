@@ -27,7 +27,6 @@ class ServiceProvider extends LaravelServiceProvider implements DeferrableProvid
      */
     public function boot()
     {
-
     }
 
     /**
