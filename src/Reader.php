@@ -84,7 +84,7 @@ class Reader
      */
     public function read(string $nik = null)
     {
-        $instance = $this->instanceUsed ? new Self() : $this;
+        $instance = $this->instanceUsed ? new self() : $this;
 
         if (! is_null($nik)) {
             $instance->setNik($nik);
