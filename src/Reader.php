@@ -22,7 +22,7 @@ class Reader
     public $subdistrict_id;
     public $subdistrict;
     public $postal_code;
-    public $birthday;
+    public $born_date;
     public $zodiac;
     public $age = array(
         'year'  => null,
@@ -75,7 +75,7 @@ class Reader
             && $this->getProvince()
             && $this->getCity()
             && $this->getSubdistrict()
-            && $this->getBirthday()
+            && $this->getBornDate()
         );
     }
 
@@ -96,7 +96,7 @@ class Reader
         $instance->getCity();
         $instance->getSubdistrict();
         $instance->getPostalCode();
-        $instance->getBirthday();
+        $instance->getBornDate();
         $instance->getAge();
         $instance->getZodiac();
         $instance->getGender();
@@ -240,17 +240,17 @@ class Reader
      *
      * @return string|null
      */
-    public function getBirthday()
+    public function getBornDate()
     {
-        if ($this->birthday && ! $this->fetchNew) {
-            return $this->birthday;
+        if ($this->born_date && ! $this->fetchNew) {
+            return $this->born_date;
         }
 
         $code = substr($this->nik, 6, 6);
         list($day, $month, $year) = str_split($code, 2);
 
         if (intval($day) > 31 && intval($day) <= 40) {
-            return $this->birthday = null;
+            return $this->born_date = null;
         }
 
         $day = (intval($day) > 40) ? (intval($day) - 40) : $day;
@@ -265,7 +265,7 @@ class Reader
         $year = ($temp > $min) ? (($high > $max) ? $low : $high) : $low;
 
         if ($year < $min) {
-            return $this->birthday = null;
+            return $this->born_date = null;
         }
 
         try {
@@ -274,12 +274,12 @@ class Reader
                 sprintf('%s-%s-%d', $day, $month, $year)
             );
             if ($parse !== false) {
-                return $this->birthday = $parse->format('d-m-Y');
+                return $this->born_date = $parse->format('d-m-Y');
             } else {
                 throw new Exception();
             }
         } catch (Exception $e) {
-            return $this->birthday = null;
+            return $this->born_date = null;
         }
     }
 
@@ -290,9 +290,9 @@ class Reader
      */
     public function getAge()
     {
-        $birthday = $this->getBirthday();
+        $born_date = $this->getBornDate();
 
-        if (! $birthday) {
+        if (! $born_date) {
             return $this->age = array(
                 'year' => null,
                 'month' => null,
@@ -300,7 +300,7 @@ class Reader
             );
         }
 
-        list($day, $month, $year) = explode('-', $birthday);
+        list($day, $month, $year) = explode('-', $born_date);
 
         $age = time() - strtotime($year . "-" .$month . "-" . $day);
 
@@ -404,7 +404,7 @@ class Reader
             'subdistrict_id' => $this->subdistrict_id,
             'subdistrict' => $this->subdistrict,
             'postal_code' => $this->postal_code,
-            'birthday' => $this->birthday,
+            'born_date' => $this->born_date,
             'age' => $this->age,
             'zodiac' => $this->zodiac,
             'gender' => $this->gender,
