@@ -40,7 +40,6 @@ class ResultTest extends TestCase
     public function testInvalidNik()
     {
         $nik = '3502203201910001';
-        $reader = new Reader();
         $result = $this->reader->read($nik);
 
         $this->assertTrue(! $result->valid);
@@ -66,7 +65,6 @@ class ResultTest extends TestCase
     public function testInvalidNikLength()
     {
         $nik = '350220320191000';
-        $reader = new Reader();
         $result = $this->reader->read($nik);
 
         $this->assertTrue(! $result->valid);
@@ -76,7 +74,6 @@ class ResultTest extends TestCase
     public function testInvalidNikChars()
     {
         $nik = '350P2001Q191J00L';
-        $reader = new Reader();
         $result = $this->reader->read($nik);
 
         $this->assertTrue(! $result->valid);
