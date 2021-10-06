@@ -1,17 +1,12 @@
 <?php
 
-use Exception;
-use PHPUnit\Framework\TestCase;
-use ZerosDev\NikReader\Reader;
-use ZerosDev\NikReader\Exceptions\InvalidDatabaseException;
-
-class ResultTest extends TestCase
+class ResultTest extends \PHPUnit\Framework\TestCase
 {
     private $reader;
 
     protected function setUp()
     {
-        $this->reader = new Reader();
+        $this->reader = new \ZerosDev\NikReader\Reader();
     }
 
     protected function tearDown()
@@ -23,8 +18,8 @@ class ResultTest extends TestCase
     {
         try {
             $this->reader->setDatabase(__DIR__.'/invalid-database.json');
-        } catch (Exception $e) {
-            $this->assertInstanceOf(InvalidDatabaseException::class, $e);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(\ZerosDev\NikReader\Exceptions\InvalidDatabaseException::class, $e);
         }
     }
 
@@ -46,20 +41,20 @@ class ResultTest extends TestCase
         $this->assertFalse($result->valid);
     }
 
-    public function testValidBirthday()
+    public function testValidBornDate()
     {
         $nik = '3502200101910001';
         $result = $this->reader->read($nik);
 
-        $this->assertEquals('01-01-1991', $result->birthday);
+        $this->assertEquals('01-01-1991', $result->born_date);
     }
 
-    public function testInvalidBirthday()
+    public function testInvalidBornDate()
     {
         $nik = '3502203201910001';
         $result = $this->reader->read($nik);
 
-        $this->assertNull($result->birthday);
+        $this->assertNull($result->born_date);
     }
 
     public function testInvalidNikLength()
@@ -88,8 +83,8 @@ class ResultTest extends TestCase
         $result = $this->reader->read($nik);
         $result2 = $this->reader->read($nik2);
 
-        $this->assertEquals('01-01-1991', $result->birthday);
-        $this->assertEquals('11-01-1991', $result2->birthday);
+        $this->assertEquals('01-01-1991', $result->born_date);
+        $this->assertEquals('11-01-1991', $result2->born_date);
     }
 
     public function testRegion()
