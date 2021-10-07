@@ -72,3 +72,22 @@ if (true === $result->valid) {
     // code
 }
 ```
+
+### Available Methods
+
+| Method                    | Description                      |
+|---------------------------|----------------------------------|
+| read(string $nik)         | Start reading NIK number         |
+| valid()                   | Check wether NIK is valid or not |
+| setDatabase(string $file) | Load database file               |
+| getProvince()             | Get province data                |
+| getCity()                 | Get city data                    |
+| getSubdistrict()          | Get subdistrict data             |
+| getPostalCode()           | Get postal code data             |
+| getBornDate()             | Get date of birth data           |
+| getAge()                  | Get age data                     |
+| getZodiac()               | Get zodiac data                  |
+| getGender()               | Get gender data                  |
+| getUniqueCode()           | Get unique code                  |
+| toArray()                 | Convert result into Array format |
+| toJSON($flags)            | Convert result into JSON format  |
