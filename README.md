@@ -77,9 +77,9 @@ if (true === $result->valid) {
 
 | Method                    | Description                      |
 |---------------------------|----------------------------------|
-| read(string $nik)         | Start reading NIK number         |
+| read()                    | Start reading NIK number         |
 | valid()                   | Check wether NIK is valid or not |
-| setDatabase(string $file) | Load database file               |
+| setDatabase()             | Load database file               |
 | getProvince()             | Get province data                |
 | getCity()                 | Get city data                    |
 | getSubdistrict()          | Get subdistrict data             |
@@ -90,4 +90,4 @@ if (true === $result->valid) {
 | getGender()               | Get gender data                  |
 | getUniqueCode()           | Get unique code                  |
 | toArray()                 | Convert result into Array format |
-| toJSON($flags)            | Convert result into JSON format  |
+| toJSON()                  | Convert result into JSON format  |
