@@ -38,7 +38,7 @@ class Reader
      * @param string|null $nik
      * @param string|null $database
      */
-    public function __construct(string $nik = null)
+    public function __construct($nik = null)
     {
         if (! is_null($nik)) {
             $this->setNik($nik);
@@ -54,7 +54,7 @@ class Reader
      *
      * @param string $nik
      */
-    private function setNik(string $nik)
+    private function setNik($nik)
     {
         $this->nik = $nik;
 
@@ -82,7 +82,7 @@ class Reader
     /**
      * Read data
      */
-    public function read(string $nik = null)
+    public function read($nik = null)
     {
         $instance = $this->instanceUsed ? new self() : $this;
 
@@ -113,9 +113,9 @@ class Reader
      *
      * @param string $file
      */
-    public function setDatabase(string $file)
+    public function setDatabase($file)
     {
-        if (! is_file($file) || ! is_readable($file)) {
+        if (! is_string($file) || ! is_file($file) || ! is_readable($file)) {
             throw new Exceptions\InvalidDatabaseException(sprintf(
                 'The database file cannot be found or not readable: %s',
                 $file
@@ -417,7 +417,7 @@ class Reader
      *
      * @return string
      */
-    public function toJSON(int $flags = 0)
+    public function toJSON($flags = 0)
     {
         return json_encode($this->toArray(), $flags);
     }

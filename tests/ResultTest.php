@@ -1,6 +1,6 @@
 <?php
 
-class ResultTest extends \PHPUnit\Framework\TestCase
+class ResultTest extends \PHPUnit_Framework_TestCase
 {
     private $reader;
 
