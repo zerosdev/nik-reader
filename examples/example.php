@@ -8,9 +8,9 @@ $nik = '3502204101910002';
 
 try {
     $reader = new Reader();
-    $json = $reader->read($nik)->toJSON(JSON_PRETTY_PRINT);
+    $result = $reader->read($nik);
 
-    print_r($json);
+    print_r($result->toJSON(JSON_PRETTY_PRINT));
 } catch (\Exception $e) {
     print_r(get_class($e) . " => " .$e->getMessage());
 }
