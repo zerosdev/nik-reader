@@ -60,7 +60,7 @@ public function method()
 ```php
 <?php
 
-require 'path/to/your/composer/autoload.php';
+require 'path/to/your/vendor/autoload.php';
 
 use ZerosDev\NikReader\Reader;
 
