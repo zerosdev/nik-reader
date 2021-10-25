@@ -16,22 +16,29 @@
 This library gives you a way to convert the NIK number into useful information such as: Region name (province, city, sub-district), date of birth, gender, zodiac, age, and more. This can also be used to validate whether the NIK number is valid or not.
 Here is the example result :
 
-| Name           | Type        | Example Value                              |
-|----------------|-------------|---------------------------------------------
-| valid          | Boolean     | true                                       |
-| nik            | String      | 3502204101910001                           |
-| province_id    | String/Null | 35                                         |
-| province       | String/Null | JAWA TIMUR                                 |
-| city_id        | String/Null | 02                                         |
-| city           | String/Null | KAB. PONOROGO                              |
-| subdistrict_id | String/Null | 20                                         |
-| subdistrict    | String/Null | JAMBON                                     |
-| postal_code    | String/Null | 63456                                      |
-| born_date      | String/Null | 01-01-1991                                 |
-| age            | Array       | ['year' => 30, 'month' => '9', 'day' => 6] |
-| zodiac         | String/Null | Capricorn                                  |
-| gender         | String/Null | female                                     |
-| unique_code    | String/Null | 0001                                       |
+```json
+{
+    "valid": true,
+    "nik": "3502200101000001",
+    "province_id": "35",
+    "province": "JAWA TIMUR",
+    "city_id": "3502",
+    "city": "KAB. PONOROGO",
+    "subdistrict_id": "350220",
+    "subdistrict": "JAMBON",
+    "postal_code": "63456",
+    "birthday": "01-01-2000",
+    "age":
+    {
+        "year": 21,
+        "month": 9,
+        "day": 25
+    },
+    "zodiac": "Capricorn",
+    "gender": "male",
+    "unique_code": "0001"
+} 
+```
 
 ## Installation
 
