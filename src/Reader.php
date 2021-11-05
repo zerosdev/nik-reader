@@ -336,11 +336,18 @@ class Reader
             $rangeStart = explode('/', $range[0]);
             $rangeEnd = explode('/', $range[1]);
 
-            if (($month <> intval($rangeStart[1])) && ($month <> intval($rangeEnd[1]))) {
-                continue;
-            }
+            $cd1 = intval($rangeStart[0]);
+            $cm1 = intval($rangeStart[1]);
 
-            if ($day >= intval($rangeStart[0]) || $day <= intval($rangeEnd[0])) {
+            $cd2 = intval($rangeEnd[0]);
+            $cm2 = intval($rangeEnd[1]);
+
+            $min = strtotime(date('Y').'-'.$cm1.'-'.$cd1.' 00:00:00');
+            $max = strtotime(date('Y').'-'.$cm2.'-'.$cd2.' 00:00:00');
+
+            $target = strtotime(date('Y').'-'.$month.'-'.$day.' 00:00:00');
+
+            if ($target >= $min && $target <= $max) {
                 $this->zodiac = $data[1];
                 break;
             }
