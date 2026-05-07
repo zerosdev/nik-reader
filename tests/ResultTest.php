@@ -163,4 +163,15 @@ final class ResultTest extends TestCase
         $result2 = $this->reader->read($femaleNik);
         $this->assertEquals('FEMALE', strtoupper($result2->gender));
     }
+
+    /**
+     * Test for zodiac information.
+     */
+    public function testZodiac()
+    {
+        $nik = '3502200101910001';
+
+        $result = $this->reader->read($nik);
+        $this->assertEquals('CAPRICORN', strtoupper($result->zodiac));
+    }
 }
