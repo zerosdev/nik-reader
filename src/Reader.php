@@ -617,7 +617,7 @@ class Reader
 
     /**
      * Convert to JSON
-     * 
+     *
      * @param int $flags JSON encode flags (default: 0)
      * @return string
      */
