@@ -2,12 +2,12 @@
 <h6 align="center">Identity data reader based on NIK (Nomor Induk Kependudukan)</h6>
 
 <p align="center">
-  <img src="https://github.com/ZerosDev/nik-reader/workflows/build/badge.svg" alt="build"/>
-  <img src="https://img.shields.io/github/v/release/ZerosDev/nik-reader?include_prereleases" alt="release"/>
-  <img src="https://img.shields.io/github/languages/top/ZerosDev/nik-reader" alt="language"/>
-  <img src="https://img.shields.io/github/license/ZerosDev/nik-reader" alt="license"/>
-  <img src="https://img.shields.io/github/languages/code-size/ZerosDev/nik-reader" alt="size"/>
-  <img src="https://img.shields.io/github/downloads/ZerosDev/nik-reader/total" alt="downloads"/>
+  <img src="https://github.com/zerosdev/nik-reader/workflows/build/badge.svg" alt="build"/>
+  <img src="https://img.shields.io/github/v/release/zerosdev/nik-reader?include_prereleases" alt="release"/>
+  <img src="https://img.shields.io/github/languages/top/zerosdev/nik-reader" alt="language"/>
+  <img src="https://img.shields.io/github/license/zerosdev/nik-reader" alt="license"/>
+  <img src="https://img.shields.io/github/languages/code-size/zerosdev/nik-reader" alt="size"/>
+  <img src="https://img.shields.io/github/downloads/zerosdev/nik-reader/total" alt="downloads"/>
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="pulls"/>
 </p>
 
@@ -27,9 +27,8 @@ Here is the example result :
     "subdistrict_id": "350220",
     "subdistrict": "JAMBON",
     "postal_code": "63456",
-    "birthday": "01-01-2000",
-    "age":
-    {
+    "date_of_birth": "01-01-2000",
+    "age": {
         "year": 21,
         "month": 9,
         "day": 25
@@ -37,13 +36,13 @@ Here is the example result :
     "zodiac": "Capricorn",
     "gender": "male",
     "unique_code": "0001"
-} 
+}
 ```
 
 ## Installation
 
 1. Run command
-<pre><code>composer require zerosdev/nik-reader</code></pre>
+ <pre><code>composer require zerosdev/nik-reader</code></pre>
 
 ## Usage
 
@@ -55,7 +54,7 @@ public function method()
 {
     $nik = '3502200101910001';
     $result = \NikReader::read($nik);
-    
+
     if (true === $result->valid) {
         // code
     }
@@ -80,21 +79,41 @@ if (true === $result->valid) {
 }
 ```
 
+### Reading Multiple NIKs
+
+When reading multiple NIKs, you have two options:
+
+**Option 1: Using the same instance (recommended)**
+
+```php
+$reader = new Reader();
+
+// Read first NIK
+$result1 = $reader->read('3502200101910001');
+echo $result1->date_of_birth; // 01-01-1991
+
+// Read second NIK (overwrites previous data)
+$result2 = $reader->read('3502201101910001');
+echo $result2->date_of_birth; // 11-01-1991
+
+// Note: $result1 and $result2 are the same object!
+```
+
 ### Available Methods
 
-| Method                    | Description                      |
-|---------------------------|----------------------------------|
-| read()                    | Start reading NIK number         |
-| valid()                   | Check wether NIK is valid or not |
-| setDatabase()             | Load database file               |
-| getProvince()             | Get province data                |
-| getCity()                 | Get city data                    |
-| getSubdistrict()          | Get subdistrict data             |
-| getPostalCode()           | Get postal code data             |
-| getBornDate()             | Get date of birth data           |
-| getAge()                  | Get age data                     |
-| getZodiac()               | Get zodiac data                  |
-| getGender()               | Get gender data                  |
-| getUniqueCode()           | Get unique code                  |
-| toArray()                 | Convert result into Array format |
-| toJSON()                  | Convert result into JSON format  |
+| Method           | Description                      |
+| ---------------- | -------------------------------- |
+| read()           | Start reading NIK number         |
+| valid()          | Check wether NIK is valid or not |
+| setDatabase()    | Load database file               |
+| getProvince()    | Get province data                |
+| getCity()        | Get city data                    |
+| getSubdistrict() | Get subdistrict data             |
+| getPostalCode()  | Get postal code data             |
+| getDateOfBirth() | Get date of birth data           |
+| getAge()         | Get age data                     |
+| getZodiac()      | Get zodiac data                  |
+| getGender()      | Get gender data                  |
+| getUniqueCode()  | Get unique code                  |
+| toArray()        | Convert result into Array format |
+| toJSON()         | Convert result into JSON format  |

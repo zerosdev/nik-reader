@@ -3,46 +3,37 @@
     "description": "Identity data reader based on NIK (Nomor Induk Kependudukan)",
     "type": "library",
     "license": "MIT",
-    "homepage": "https://github.com/ZerosDev/nik-reader",
-    "support":
-    {
-        "issues": "https://github.com/ZerosDev/nik-reader/issues",
-        "source": "https://github.com/ZerosDev/nik-reader"
+    "homepage": "https://github.com/zerosdev/nik-reader",
+    "support": {
+        "issues": "https://github.com/zerosdev/nik-reader/issues",
+        "source": "https://github.com/zerosdev/nik-reader"
     },
-    "authors":
-    [
+    "authors": [
         {
             "name": "Suyadi",
             "email": "suyadi.1992@gmail.com"
         },
         {
-            "name": "ZerosDev",
-            "email": "admin@zeros.co.id"
+            "name": "Rony Wisnu Wardana (zerosdev)",
+            "email": "ronywisnuwardana@gmail.com"
         }
     ],
     "minimum-stability": "dev",
-    "require":
-    {
-        "php": ">=5.6",
+    "require": {
+        "php": "^7.2|^8.0",
         "ext-json": "*"
     },
-    "autoload":
-    {
-        "psr-4":
-        {
+    "autoload": {
+        "psr-4": {
             "ZerosDev\\NikReader\\": "src/"
         }
     },
-    "extra":
-    {
-        "laravel":
-        {
-            "providers":
-            [
+    "extra": {
+        "laravel": {
+            "providers": [
                 "ZerosDev\\NikReader\\Laravel\\ServiceProvider"
             ],
-            "aliases":
-            {
+            "aliases": {
                 "NikReader": "ZerosDev\\NikReader\\Laravel\\Facade"
             }
         },
@@ -50,15 +41,16 @@
         "patches": {
             "phpunit/phpunit-mock-objects": {
                 "Fix PHP 7 and 8 compatibility": "https://cdn.jsdelivr.net/gh/esyede/phpunit-patches/phpunit_mock_objects.patch"
-            },
-            "phpunit/phpunit": {
-                "Fix PHP 7 compatibility": "https://cdn.jsdelivr.net/gh/esyede/phpunit-patches/phpunit_php7.patch",
-                "Fix PHP 8 compatibility": "https://cdn.jsdelivr.net/gh/esyede/phpunit-patches/phpunit_php8.patch"
             }
         }
     },
     "require-dev": {
         "cweagans/composer-patches": "^1.7",
-        "phpunit/phpunit": "4.8.34"
+        "phpunit/phpunit": "^8.5"
+    },
+    "config": {
+        "allow-plugins": {
+            "cweagans/composer-patches": true
+        }
     }
 }

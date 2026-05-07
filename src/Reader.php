@@ -3,42 +3,110 @@
 namespace ZerosDev\NikReader;
 
 use DateTime;
-use Exception;
 
 class Reader
 {
-    private $instanceUsed = false;
+    /**
+     * @var bool
+     */
     private $fetchNew = false;
 
+    /**
+     * @var object|null
+     */
     private static $database;
+
+    /**
+     * @var int|null
+     */
     private static $filemtime;
 
+    /**
+     * @var bool
+     */
     public $valid = false;
+
+    /**
+     * @var string|null
+     */
     public $nik;
+
+    /**
+     * @var string|null
+     */
     public $province_id;
+
+    /**
+     * @var string|null
+     */
     public $province;
+
+    /**
+     * @var string|null
+     */
     public $city_id;
+
+    /**
+     * @var string|null
+     */
     public $city;
+
+    /**
+     * @var string|null
+     */
     public $subdistrict_id;
+
+    /**
+     * @var string|null
+     */
     public $subdistrict;
+
+    /**
+     * @var string|null
+     */
     public $postal_code;
+
+    /**
+     * @deprecated Use $date_of_birth
+     * @var string|null
+     */
     public $born_date;
+
+    /**
+     * @var string|null
+     */
+    public $date_of_birth;
+
+    /**
+     * @var string|null
+     */
     public $zodiac;
+
+    /**
+     * @var array<string,int|null>
+     */
     public $age = array(
         'year'  => null,
         'month' => null,
         'day'   => null
     );
+
+    /**
+     * @var string|null
+     */
     public $gender;
+
+    /**
+     * @var string|null
+     */
     public $unique_code;
 
     /**
      * Constructor.
      *
      * @param string|null $nik
-     * @param string|null $database
      */
-    public function __construct($nik = null)
+    public function __construct(?string $nik = null)
     {
         if (! is_null($nik)) {
             $this->setNik($nik);
@@ -54,11 +122,55 @@ class Reader
      *
      * @param string $nik
      */
-    private function setNik($nik)
+    private function setNik(string $nik): self
     {
-        $this->nik = $nik;
+        $this->nik = is_scalar($nik) ? trim((string) $nik) : $nik;
 
         return $this;
+    }
+
+    /**
+     * Reset computed values.
+     *
+     * @return void
+     */
+    private function reset(): void
+    {
+        $this->valid = false;
+        $this->province_id = null;
+        $this->province = null;
+        $this->city_id = null;
+        $this->city = null;
+        $this->subdistrict_id = null;
+        $this->subdistrict = null;
+        $this->postal_code = null;
+        $this->born_date = null;
+        $this->date_of_birth = null;
+        $this->age = array('year' => null, 'month' => null, 'day' => null);
+        $this->zodiac = null;
+        $this->gender = null;
+        $this->unique_code = null;
+    }
+
+    /**
+     * Check if the current NIK has a valid numeric format.
+     *
+     * @return bool
+     */
+    public function isValidNik(): bool
+    {
+        if (! is_string($this->nik) || ! preg_match('/^[0-9]{16}$/', $this->nik)) {
+            return false;
+        }
+
+        $day = intval(substr($this->nik, 6, 2));
+        $month = intval(substr($this->nik, 8, 2));
+
+        if ($day < 1 || $day > 71 || $month < 1 || $month > 12) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -66,46 +178,43 @@ class Reader
      *
      * @return bool
      */
-    public function valid()
+    public function valid(): bool
     {
         return $this->valid = (
-            is_string($this->nik)
-            && preg_match("/^[0-9]+$/is", $this->nik)
-            && strlen($this->nik) === 16
+            $this->isValidNik()
             && $this->getProvince()
             && $this->getCity()
             && $this->getSubdistrict()
-            && $this->getBornDate()
+            && $this->getDateOfBirth()
         );
     }
 
     /**
-     * Read data
+     * Read data (modifies current instance)
      */
-    public function read($nik = null)
+    public function read(?string $nik = null): self
     {
-        $instance = $this->instanceUsed ? new self() : $this;
-
         if (! is_null($nik)) {
-            $instance->setNik($nik);
+            $this->setNik($nik);
         }
 
-        $instance->fetchNew = true;
+        $this->fetchNew = true;
+        $this->reset();
 
-        $instance->getProvince();
-        $instance->getCity();
-        $instance->getSubdistrict();
-        $instance->getPostalCode();
-        $instance->getBornDate();
-        $instance->getAge();
-        $instance->getZodiac();
-        $instance->getGender();
-        $instance->getUniqueCode();
-        $instance->valid();
+        $this->getProvince();
+        $this->getCity();
+        $this->getSubdistrict();
+        $this->getPostalCode();
+        $this->getDateOfBirth();
+        $this->getAge();
+        $this->getZodiac();
+        $this->getGender();
+        $this->getUniqueCode();
+        $this->valid();
 
-        $instance->instanceUsed = true;
+        $this->fetchNew = false;
 
-        return $instance;
+        return $this;
     }
 
     /**
@@ -113,7 +222,7 @@ class Reader
      *
      * @param string $file
      */
-    public function setDatabase($file)
+    public function setDatabase(string $file): self
     {
         if (! is_string($file) || ! is_file($file) || ! is_readable($file)) {
             throw new Exceptions\InvalidDatabaseException(sprintf(
@@ -122,7 +231,15 @@ class Reader
             ));
         }
 
-        if (static::$filemtime <= filemtime($file)) {
+        $mtime = filemtime($file);
+        if ($mtime === false) {
+            throw new Exceptions\InvalidDatabaseException(sprintf(
+                'Unable to read database file metadata: %s',
+                $file
+            ));
+        }
+
+        if (static::$database === null || static::$filemtime < $mtime) {
             $database = file_get_contents($file);
             $database = json_decode($database);
 
@@ -135,7 +252,7 @@ class Reader
             }
 
             static::$database = $database;
-            static::$filemtime = filemtime($file);
+            static::$filemtime = $mtime;
         }
 
         return $this;
@@ -146,10 +263,14 @@ class Reader
      *
      * @return string|null
      */
-    public function getProvince()
+    public function getProvince(): ?string
     {
-        if ($this->province && ! $this->fetchNew) {
+        if ($this->province !== null && ! $this->fetchNew) {
             return $this->province;
+        }
+
+        if (! $this->isValidNik()) {
+            return $this->province = null;
         }
 
         $this->province_id = substr($this->nik, 0, 2);
@@ -166,10 +287,14 @@ class Reader
      *
      * @return string|null
      */
-    public function getCity()
+    public function getCity(): ?string
     {
-        if ($this->city && ! $this->fetchNew) {
+        if ($this->city !== null && ! $this->fetchNew) {
             return $this->city;
+        }
+
+        if (! $this->isValidNik()) {
+            return $this->city = null;
         }
 
         $this->city_id = substr($this->nik, 0, 4);
@@ -186,10 +311,14 @@ class Reader
      *
      * @return string|null
      */
-    public function getSubdistrict()
+    public function getSubdistrict(): ?string
     {
-        if ($this->subdistrict && ! $this->fetchNew) {
+        if ($this->subdistrict !== null && ! $this->fetchNew) {
             return $this->subdistrict;
+        }
+
+        if (! $this->isValidNik()) {
+            return $this->subdistrict = null;
         }
 
         $this->subdistrict_id = substr($this->nik, 0, 6);
@@ -201,8 +330,8 @@ class Reader
         );
 
         if (! is_null($this->subdistrict)) {
-            $this->subdistrict = explode(' -- ', $this->subdistrict);
-            $this->subdistrict = isset($this->subdistrict[0]) ? $this->subdistrict[0] : null;
+            $subdistrict = explode(' -- ', $this->subdistrict);
+            $this->subdistrict = isset($subdistrict[0]) ? $subdistrict[0] : null;
         }
 
         return $this->subdistrict;
@@ -213,10 +342,14 @@ class Reader
      *
      * @return string|null
      */
-    public function getPostalCode()
+    public function getPostalCode(): ?string
     {
-        if ($this->postal_code && ! $this->fetchNew) {
+        if ($this->postal_code !== null && ! $this->fetchNew) {
             return $this->postal_code;
+        }
+
+        if (! $this->isValidNik()) {
+            return $this->postal_code = null;
         }
 
         $code = substr($this->nik, 0, 6);
@@ -240,47 +373,72 @@ class Reader
      *
      * @return string|null
      */
-    public function getBornDate()
+    public function getDateOfBirth(): ?string
     {
-        if ($this->born_date && ! $this->fetchNew) {
-            return $this->born_date;
+        if ($this->date_of_birth !== null && ! $this->fetchNew) {
+            return $this->date_of_birth;
+        }
+
+        if (! $this->isValidNik()) {
+            return $this->date_of_birth = null;
         }
 
         $code = substr($this->nik, 6, 6);
-        list($day, $month, $year) = str_split($code, 2);
+        list($rawDay, $rawMonth, $rawYear) = str_split($code, 2);
 
-        if (intval($day) > 31 && intval($day) <= 40) {
-            return $this->born_date = null;
+        $day = intval($rawDay);
+        $month = intval($rawMonth);
+        $year = intval($rawYear);
+
+        if ($day > 40) {
+            $day -= 40;
         }
 
-        $day = (intval($day) > 40) ? (intval($day) - 40) : $day;
+        if ($day < 1 || $day > 31) {
+            return $this->date_of_birth = null;
+        }
 
-        $max = date('Y') - 17;
+        $currentYear = intval(date('Y'));
+        $max = $currentYear - 17;
         $min = 1945;
 
-        $temp = '20' . $year;
-        $low = '19' . $year;
-        $high = '20' . $year;
+        $high = 2000 + $year;
+        $low = 1900 + $year;
 
-        $year = ($temp > $min) ? (($high > $max) ? $low : $high) : $low;
+        $year = ($high > $max) ? $low : $high;
 
-        if ($year < $min) {
-            return $this->born_date = null;
+        if ($year < $min || $year > $max) {
+            return $this->date_of_birth = null;
         }
 
-        try {
-            $parse = DateTime::createFromFormat(
-                'd-m-Y',
-                sprintf('%s-%s-%d', $day, $month, $year)
-            );
-            if ($parse !== false) {
-                return $this->born_date = $parse->format('d-m-Y');
-            } else {
-                throw new Exception();
-            }
-        } catch (Exception $e) {
-            return $this->born_date = null;
+        $formatted = sprintf('%02d-%02d-%04d', $day, $month, $year);
+        $parse = DateTime::createFromFormat('d-m-Y', $formatted);
+
+        if ($parse === false) {
+            return $this->date_of_birth = null;
         }
+
+        $value = $parse->format('d-m-Y');
+        $this->date_of_birth = $value;
+        $this->born_date = $value;
+
+        return $value;
+    }
+
+    /**
+     * @deprecated Use getDateOfBirth()
+     *
+     * @return string|null
+     */
+    public function getBornDate(): ?string
+    {
+        if (! defined('E_USER_DEPRECATED')) {
+            define('E_USER_DEPRECATED', 16384);
+        }
+
+        trigger_error('getBornDate() is deprecated. Use getDateOfBirth() instead.', E_USER_DEPRECATED);
+
+        return $this->getDateOfBirth();
     }
 
     /**
@@ -288,9 +446,13 @@ class Reader
      *
      * @return array => string|null
      */
-    public function getAge()
+    public function getAge(): array
     {
-        $born_date = $this->getBornDate();
+        if ($this->age['year'] !== null && ! $this->fetchNew) {
+            return $this->age;
+        }
+
+        $born_date = $this->getDateOfBirth();
 
         if (! $born_date) {
             return $this->age = array(
@@ -302,13 +464,23 @@ class Reader
 
         list($day, $month, $year) = explode('-', $born_date);
 
-        $age = time() - strtotime($year . "-" .$month . "-" . $day);
+        $born = DateTime::createFromFormat('Y-m-d', sprintf('%s-%s-%s', $year, $month, $day));
+        if ($born === false) {
+            return $this->age = array(
+                'year' => null,
+                'month' => null,
+                'day' => null
+            );
+        }
 
-        $this->age['year'] = abs(gmdate('Y', $age) - 1970);
-        $this->age['month'] = abs(gmdate('m', $age) - 1);
-        $this->age['day'] = abs(gmdate('d', $age) - 1);
+        $now = new DateTime();
+        $diff = $now->diff($born);
 
-        return $this->age;
+        return $this->age = array(
+            'year' => intval($diff->y),
+            'month' => intval($diff->m),
+            'day' => intval($diff->d)
+        );
     }
 
     /**
@@ -316,20 +488,30 @@ class Reader
      *
      * @return string|null
      */
-    public function getZodiac()
+    public function getZodiac(): ?string
     {
-        if ($this->zodiac && ! $this->fetchNew) {
+        if ($this->zodiac !== null && ! $this->fetchNew) {
             return $this->zodiac;
         }
 
-        list($day, $month) = str_split(substr($this->nik, 6, 4), 2);
+        if (! $this->isValidNik()) {
+            return $this->zodiac = null;
+        }
 
-        $day = intval($day);
-        $month = intval($month);
+        list($rawDay, $rawMonth) = str_split(substr($this->nik, 6, 4), 2);
+
+        $day = intval($rawDay);
+        $month = intval($rawMonth);
 
         if ($day > 40) {
-            $day = $day - 40;
+            $day -= 40;
         }
+
+        if ($day < 1 || $day > 31 || $month < 1 || $month > 12) {
+            return $this->zodiac = null;
+        }
+
+        $target = intval(sprintf('%02d%02d', $month, $day));
 
         foreach (static::$database->zodiacs as $data) {
             $range = explode('-', $data[0]);
@@ -342,14 +524,19 @@ class Reader
             $cd2 = intval($rangeEnd[0]);
             $cm2 = intval($rangeEnd[1]);
 
-            $min = strtotime(date('Y').'-'.$cm1.'-'.$cd1.' 00:00:00');
-            $max = strtotime(date('Y').'-'.$cm2.'-'.$cd2.' 00:00:00');
+            $start = intval(sprintf('%02d%02d', $cm1, $cd1));
+            $end = intval(sprintf('%02d%02d', $cm2, $cd2));
 
-            $target = strtotime(date('Y').'-'.$month.'-'.$day.' 00:00:00');
-
-            if ($target >= $min && $target <= $max) {
-                $this->zodiac = $data[1];
-                break;
+            if ($start <= $end) {
+                if ($target >= $start && $target <= $end) {
+                    $this->zodiac = $data[1];
+                    break;
+                }
+            } else {
+                if ($target >= $start || $target <= $end) {
+                    $this->zodiac = $data[1];
+                    break;
+                }
             }
         }
 
@@ -361,13 +548,17 @@ class Reader
      *
      * @return string|null
      */
-    public function getGender()
+    public function getGender(): ?string
     {
-        if ($this->gender && ! $this->fetchNew) {
+        if ($this->gender !== null && ! $this->fetchNew) {
             return $this->gender;
         }
 
-        $day = substr($this->nik, 6, 2);
+        if (! $this->isValidNik()) {
+            return $this->gender = null;
+        }
+
+        $day = intval(substr($this->nik, 6, 2));
 
         if ($day > 40) {
             $this->gender = 'female';
@@ -383,10 +574,14 @@ class Reader
      *
      * @return string|null
      */
-    public function getUniqueCode()
+    public function getUniqueCode(): ?string
     {
-        if ($this->unique_code && ! $this->fetchNew) {
+        if ($this->unique_code !== null && ! $this->fetchNew) {
             return $this->unique_code;
+        }
+
+        if (! $this->isValidNik()) {
+            return $this->unique_code = null;
         }
 
         $code = substr($this->nik, 12, 4);
@@ -399,7 +594,7 @@ class Reader
      *
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'valid' => $this->valid,
@@ -412,6 +607,7 @@ class Reader
             'subdistrict' => $this->subdistrict,
             'postal_code' => $this->postal_code,
             'born_date' => $this->born_date,
+            'date_of_birth' => $this->date_of_birth,
             'age' => $this->age,
             'zodiac' => $this->zodiac,
             'gender' => $this->gender,
@@ -421,10 +617,11 @@ class Reader
 
     /**
      * Convert to JSON
-     *
+     * 
+     * @param int $flags JSON encode flags (default: 0)
      * @return string
      */
-    public function toJSON($flags = 0)
+    public function toJSON(int $flags = 0): string
     {
         return json_encode($this->toArray(), $flags);
     }
